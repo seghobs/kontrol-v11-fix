@@ -1,13 +1,9 @@
-from flask import Flask, jsonify, request, redirect
+from flask import Flask, jsonify, request, redirect, session
 from flask_wtf.csrf import CSRFProtect, CSRFError
-
 from app_core.config import get_config
 from app_core.routes.admin import admin_bp
 from app_core.routes.main import main_bp
 from app_core.storage import init_storage
-
-
-
 
 def create_app():
     config = get_config()
@@ -19,7 +15,7 @@ def create_app():
     csrf = CSRFProtect()
     csrf.init_app(app)
 
-    # Static dosyalar icin sunucu tarafli cache tamamen kapali
+    # Static dosyalar için önbellek kapatıldı
     app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 0
 
     init_storage()
@@ -27,8 +23,11 @@ def create_app():
     app.register_blueprint(main_bp)
     app.register_blueprint(admin_bp)
 
-    # -------------------------------------------------------
-    # Tum yanıtlara no-cache header ekle
+    @app.before_request
+    def make_session_permanent():
+        session.permanent = True
+
+
     # Chrome, Safari, Firefox ve tum eski tarayicilar
     # hicbir sayfayi, JSON'u veya JS dosyasini onbelleklemesin
     # -------------------------------------------------------

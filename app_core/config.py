@@ -39,6 +39,7 @@ IG_APP_ID = "567067343352427"
 
 
 class BaseConfig:
+    import datetime
     APP_ENV = os.getenv("APP_ENV", "dev")
     ADMIN_PASSWORD = active_admin_password
     SECRET_KEY = active_secret_key
@@ -46,6 +47,7 @@ class BaseConfig:
     HEALTH_CHECK_INTERVAL_SECONDS = int(os.getenv("HEALTH_CHECK_INTERVAL_SECONDS", "180"))
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SAMESITE = "Lax"
+    PERMANENT_SESSION_LIFETIME = datetime.timedelta(days=365)
 
 
 class DevConfig(BaseConfig):
