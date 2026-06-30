@@ -7,12 +7,15 @@ from app_core.routes.main import main_bp
 from app_core.storage import init_storage
 
 
+
+
 def create_app():
     config = get_config()
     app = Flask(__name__, template_folder="../templates", static_folder="../static")
     app.config.from_object(config)
 
-    # CSRF Koruması
+    # CSRF Koruması Tamamen Devre Dışı
+    app.config["WTF_CSRF_ENABLED"] = False
     csrf = CSRFProtect()
     csrf.init_app(app)
 
