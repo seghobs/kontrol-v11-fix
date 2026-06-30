@@ -286,6 +286,22 @@ async function loadAuditLogs() {
         d.logs.forEach((log) => {
             const div = document.createElement("div");
             div.style.cssText = "padding: 10px 12px; margin-bottom: 8px; background: #0d0a08; border-radius: 8px; font-size: 13px; border: 1px solid rgba(139, 109, 78, 0.15); word-break: break-all; overflow-wrap: anywhere;";
+            
+            const isPostLink = log.entity_id && (log.entity_id.startsWith("http://") || log.entity_id.startsWith("https://"));
+            if (isPostLink) {
+                div.style.cursor = "pointer";
+                div.style.transition = "all 0.2s ease";
+                div.onmouseover = () => {
+                    div.style.borderColor = "rgba(196, 149, 106, 0.4)";
+                    div.style.background = "rgba(196, 149, 106, 0.03)";
+                };
+                div.onmouseout = () => {
+                    div.style.borderColor = "rgba(139, 109, 78, 0.15)";
+                    div.style.background = "#0d0a08";
+                };
+                div.onclick = () => showAuditPostDetails(log.entity_id);
+            }
+            
             const actionLabel = { token_eklendi: "Token eklendi", token_guncellendi: "Token guncellendi", token_silindi: "Token silindi", token_geri_alindi: "Token geri alindi", relogin_basarili: "Tekrar giris" }[log.action] || log.action;
             div.innerHTML = "<strong>" + escapeHtml(log.entity_id) + "</strong> – " + escapeHtml(actionLabel) + (log.details ? " – " + escapeHtml(log.details) : "") + " <span style=\"color: rgba(255,255,255,0.5); font-size: 12px;\">" + escapeHtml(log.created_at) + "</span>";
             list.appendChild(div);
@@ -1865,6 +1881,54 @@ function closeUserSpamModal() {
     if (modal) modal.classList.remove("show");
 }
 window.closeUserSpamModal = closeUserSpamModal;
+
+async function showAuditPostDetails(postLink) {
+    const modal = document.getElementById("auditPostDetailsModal");
+    const loading = document.getElementById("auditPostDetailsLoading");
+    const content = document.getElementById("auditPostDetailsContent");
+    
+    if (!modal || !loading || !content) return;
+    
+    // Show modal in loading state
+    loading.style.display = "block";
+    content.style.display = "none";
+    modal.classList.add("show");
+    
+    try {
+        const response = await fetch(`/admin/get_post_details?post_link=${encodeURIComponent(postLink)}`);
+        const data = await response.json();
+        
+        if (data.success && data.details) {
+            const details = data.details;
+            document.getElementById("auditModalPostOwner").textContent = details.sender ? "@" + details.sender : "Bilinmiyor";
+            document.getElementById("auditModalPostOwnerFullname").textContent = details.owner_fullname ? details.owner_fullname : "İsim Bilgisi Yok";
+            document.getElementById("auditModalPostLikes").textContent = Number(details.like_count || 0).toLocaleString("tr-TR");
+            document.getElementById("auditModalPostComments").textContent = Number(details.comment_count || 0).toLocaleString("tr-TR");
+            document.getElementById("auditModalPostCaption").textContent = details.caption ? details.caption : "Açıklama bulunmuyor.";
+            document.getElementById("auditModalPostLinkBtn").href = postLink;
+            
+            loading.style.display = "none";
+            content.style.display = "block";
+        } else {
+            showAlert(data.message || "Gönderi detayları alınamadı.", "error");
+            closeAuditPostDetailsModal();
+        }
+    } catch (e) {
+        console.error("Audit post details error:", e);
+        showAlert("Bağlantı hatası oluştu.", "error");
+        closeAuditPostDetailsModal();
+    }
+}
+
+function closeAuditPostDetailsModal() {
+    const modal = document.getElementById("auditPostDetailsModal");
+    if (modal) {
+        modal.classList.remove("show");
+    }
+}
+
+window.showAuditPostDetails = showAuditPostDetails;
+window.closeAuditPostDetailsModal = closeAuditPostDetailsModal;
 
 
 

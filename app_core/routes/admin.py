@@ -939,3 +939,32 @@ def get_user_comments_route(thread_id, username):
     return api_response(True, "OK", "Kullanici yorum detaylari", extra={"comments": comments})
 
 
+@admin_bp.route("/get_post_details", methods=["GET"])
+def get_post_details_route():
+    auth_error = _require_admin()
+    if auth_error: return auth_error
+    
+    post_link = request.args.get("post_link", "").strip()
+    if not post_link:
+        return api_response(False, "Link eksik")
+        
+    try:
+        from donustur import donustur
+        from app_core.instagram_api import get_post_details
+        media_id = donustur(post_link)
+        if not media_id:
+            return api_response(False, "Geçersiz link")
+            
+        token_record = get_working_active_token()
+        if not token_record:
+            return api_response(False, "Aktif token bulunamadı")
+            
+        post_details = get_post_details(media_id, token_record)
+        if not post_details:
+            return api_response(False, "Post detayları alınamadı")
+            
+        return api_response(True, "OK", "Post detayları", extra={"details": post_details})
+    except Exception as e:
+        return api_response(False, str(e))
+
+
