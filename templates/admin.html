@@ -405,6 +405,13 @@
     <!-- Page Transition Script -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('csrf_expired')) {
+                setTimeout(function() {
+                    alert("Güvenlik anahtarınız yenilendi, lütfen işlemi tekrar deneyin.");
+                }, 600);
+            }
+
             document.querySelectorAll('a').forEach(link => {
                 link.addEventListener('click', function(e) {
                     if (this.target === '_blank' || !this.href || this.href.startsWith('javascript:') || this.getAttribute('href').startsWith('#') || this.hasAttribute('download')) return;

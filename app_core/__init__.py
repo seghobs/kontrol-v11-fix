@@ -1,5 +1,5 @@
-from flask import Flask, jsonify, request
-from flask_wtf.csrf import CSRFProtect
+from flask import Flask, jsonify, request, redirect
+from flask_wtf.csrf import CSRFProtect, CSRFError
 
 from app_core.config import get_config
 from app_core.routes.admin import admin_bp
@@ -49,6 +49,32 @@ def create_app():
     def server_error(_error):
         return jsonify({"success": False, "message": "Sunucu hatasi"}), 500
 
-
+    @app.errorhandler(CSRFError)
+    def handle_csrf_error(e):
+        app.logger.warning(f"CSRF validation failed: {e.description} for path {request.path}")
+        
+        # Check if request is AJAX
+        is_ajax = (
+            request.is_json or 
+            request.headers.get("X-Requested-With") == "XMLHttpRequest" or 
+            request.path.startswith("/api/") or
+            "application/json" in request.headers.get("Accept", "")
+        )
+        
+        if is_ajax:
+            return jsonify({
+                "success": False,
+                "message": "Güvenlik doğrulama anahtarı (CSRF) zaman aşımına uğradı veya oturumunuz sonlandı. Lütfen sayfayı yenileyip tekrar deneyin."
+            }), 400
+            
+        # HTML form submissions: redirect back to referrer page
+        target = request.referrer or "/"
+        if "csrf_expired=1" not in target:
+            if "?" in target:
+                target += "&csrf_expired=1"
+            else:
+                target += "?csrf_expired=1"
+                
+        return redirect(target)
 
     return app

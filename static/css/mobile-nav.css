@@ -1,3 +1,8 @@
+:root {
+    --accent-caramel: #c4956a;
+    --accent-mocha: #8b6d4e;
+}
+
 /* Mobile Bottom Navigation - Floating Pill Tab Bar */
 .mobile-bottom-nav {
     position: fixed;
@@ -10,7 +15,7 @@
     background: rgba(26, 18, 14, 0.85);
     backdrop-filter: blur(20px) saturate(180%);
     -webkit-backdrop-filter: blur(20px) saturate(180%);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: 1px solid transparent;
     border-radius: 32px;
     display: none;
     justify-content: space-evenly;
@@ -18,6 +23,22 @@
     z-index: 9999;
     box-shadow: 0 12px 36px rgba(0, 0, 0, 0.5);
     padding-left: 8px; padding-right: 8px;
+}
+
+/* Full 4-sided gradient accent border for bottom nav */
+.mobile-bottom-nav::before {
+    content: '';
+    position: absolute;
+    top: -1px; bottom: -1px; left: -1px; right: -1px;
+    border-radius: 32px;
+    border: 1px solid transparent;
+    background: linear-gradient(135deg, transparent 15%, var(--accent-caramel) 40%, var(--accent-mocha) 60%, transparent 85%) border-box;
+    -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: destination-out;
+    mask-composite: exclude;
+    pointer-events: none;
+    z-index: 10;
+    opacity: 0.7;
 }
 
 .nav-item {
