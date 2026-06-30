@@ -1132,3 +1132,12 @@ body.page-transitioning-out {
     font-weight: 600;
 }
 
+/* Dropdown Overlay & Clipping Fixes for Admin Panel */
+.section-body:not(.collapsed) {
+    overflow: visible !important;
+}
+#spamReportSection {
+    position: relative;
+    z-index: 10080 !important;
+}
+
