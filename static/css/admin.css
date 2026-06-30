@@ -304,6 +304,7 @@ body.page-transitioning-out {
 .global-exemption-section,
 .automation-section,
 .settings-section,
+.spam-report-section,
 .audit-section {
     background: var(--card);
     backdrop-filter: var(--glass-blur);
@@ -323,6 +324,7 @@ body.page-transitioning-out {
 .global-exemption-section:hover,
 .automation-section:hover,
 .settings-section:hover,
+.spam-report-section:hover,
 .audit-section:hover {
     border-color: rgba(196, 149, 106, 0.4);
     box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
@@ -340,6 +342,7 @@ body.page-transitioning-out {
 .global-exemption-section h2,
 .automation-section h2,
 .settings-section h2,
+.spam-report-section h2,
 .audit-section h2 {
     color: #fff !important;
     margin-bottom: 0;
@@ -353,6 +356,7 @@ body.page-transitioning-out {
 .global-exemption-section h2 i,
 .automation-section h2 i,
 .settings-section h2 i,
+.spam-report-section h2 i,
 .audit-section h2 i {
     color: var(--accent-caramel) !important;
     margin-right: 8px;
