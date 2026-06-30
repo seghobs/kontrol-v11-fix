@@ -295,7 +295,7 @@ async function loadAuditLogs() {
         }
         d.logs.forEach((log) => {
             const div = document.createElement("div");
-            div.style.cssText = "padding: 10px 12px; margin-bottom: 8px; background: rgba(255,255,255,0.05); border-radius: 8px; font-size: 13px; border: 1px solid rgba(255,255,255,0.08);";
+            div.style.cssText = "padding: 10px 12px; margin-bottom: 8px; background: #0d0a08; border-radius: 8px; font-size: 13px; border: 1px solid rgba(139, 109, 78, 0.15);";
             const actionLabel = { token_eklendi: "Token eklendi", token_guncellendi: "Token guncellendi", token_silindi: "Token silindi", token_geri_alindi: "Token geri alindi", relogin_basarili: "Tekrar giris" }[log.action] || log.action;
             div.innerHTML = "<strong>" + escapeHtml(log.entity_id) + "</strong> – " + escapeHtml(actionLabel) + (log.details ? " – " + escapeHtml(log.details) : "") + " <span style=\"color: rgba(255,255,255,0.5); font-size: 12px;\">" + escapeHtml(log.created_at) + "</span>";
             list.appendChild(div);
