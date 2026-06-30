@@ -1729,16 +1729,15 @@ async function loadGroupSpamReport() {
                 }
                 
                 const tr = document.createElement("tr");
-                tr.style.borderBottom = "1px solid rgba(255,255,255,0.05)";
                 tr.innerHTML = `
-                    <td data-label="Kullanıcı Adı" style="padding: 12px 16px; text-align: left; vertical-align: middle;">
-                        <a href="javascript:void(0)" onclick="showUserSpamDetails('${row.username}')" style="color: var(--accent-primary); font-weight: 600; text-decoration: none; display: flex; align-items: center; gap: 6px;">
+                    <td data-label="Kullanıcı Adı" style="text-align: left;">
+                        <a href="javascript:void(0)" onclick="showUserSpamDetails('${row.username}')">
                             <i class="fas fa-user-circle"></i> @${row.username}
                         </a>
                     </td>
-                    <td data-label="Toplam Yorum" style="padding: 12px 16px; text-align: center; vertical-align: middle;">${row.total_comments}</td>
-                    <td data-label="Format İhlali" style="padding: 12px 16px; text-align: center; vertical-align: middle; color: ${row.format_errors > 0 ? '#f87171' : 'rgba(255,255,255,0.7)'};">${row.format_errors}</td>
-                    <td data-label="Ort. Spam Puanı" style="padding: 12px 16px; text-align: center; vertical-align: middle;">${scoreBadge}</td>
+                    <td data-label="Toplam Yorum" style="text-align: center;">${row.total_comments}</td>
+                    <td data-label="Format İhlali" style="text-align: center; color: ${row.format_errors > 0 ? '#f87171' : 'rgba(255,255,255,0.7)'};">${row.format_errors}</td>
+                    <td data-label="Ort. Spam Puanı" style="text-align: center;">${scoreBadge}</td>
                 `;
                 tbody.appendChild(tr);
             });

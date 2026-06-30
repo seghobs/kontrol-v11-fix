@@ -1145,49 +1145,120 @@ body.page-transitioning-out {
     z-index: 10080 !important;
 }
 
-/* Responsive Spam Table to Card Layout on Mobile */
+/* Premium Spam Table Styles */
+.spam-table-container {
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid rgba(139, 109, 78, 0.18);
+    background: rgba(22, 17, 13, 0.4);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+    margin-top: 15px;
+}
+
+.spam-table {
+    width: 100%;
+    border-collapse: collapse;
+    color: var(--foreground);
+    font-size: 14px;
+}
+
+.spam-table th {
+    background: rgba(196, 149, 106, 0.06);
+    border-bottom: 1px solid rgba(139, 109, 78, 0.2);
+    padding: 16px 20px;
+    font-weight: 600;
+    color: var(--accent-caramel);
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: 0.8px;
+}
+
+.spam-table tr {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    transition: background-color 0.25s ease, transform 0.2s ease;
+}
+
+.spam-table tbody tr:hover {
+    background: rgba(196, 149, 106, 0.03);
+}
+
+.spam-table td {
+    padding: 14px 20px;
+    vertical-align: middle;
+}
+
+.spam-table td a {
+    color: var(--accent-caramel);
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.spam-table td a:hover {
+    color: #fff;
+    transform: translateX(3px);
+}
+
+/* Mobile responsive version of modern table */
 @media (max-width: 768px) {
-    #spamReportTableWrapper table, 
-    #spamReportTableWrapper thead, 
-    #spamReportTableWrapper tbody, 
-    #spamReportTableWrapper th, 
-    #spamReportTableWrapper td, 
-    #spamReportTableWrapper tr {
+    .spam-table-container {
+        border: none;
+        background: transparent;
+        box-shadow: none;
+        margin-top: 10px;
+    }
+    .spam-table, 
+    .spam-table thead, 
+    .spam-table tbody, 
+    .spam-table th, 
+    .spam-table td, 
+    .spam-table tr {
         display: block;
         width: 100%;
     }
-    #spamReportTableWrapper thead {
+    .spam-table thead {
         display: none !important;
     }
-    #spamReportTableWrapper tr {
-        margin-bottom: 12px;
-        padding: 12px 16px;
-        background: rgba(255, 255, 255, 0.02);
-        border: 1px solid rgba(255, 255, 255, 0.05) !important;
-        border-radius: 12px;
-        box-sizing: border-box;
+    .spam-table tr {
+        background: rgba(22, 17, 13, 0.7);
+        border: 1px solid rgba(139, 109, 78, 0.15) !important;
+        border-radius: 16px;
+        padding: 16px;
+        margin-bottom: 14px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
     }
-    #spamReportTableWrapper td {
-        text-align: right !important;
-        padding: 8px 0 !important;
-        border: none !important;
+    .spam-table tr:hover {
+        background: rgba(22, 17, 13, 0.9);
+        transform: translateY(-2px);
+    }
+    .spam-table td {
+        padding: 10px 0 !important;
+        border-bottom: 1px dashed rgba(139, 109, 78, 0.1) !important;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        font-size: 13px;
-        border-bottom: 1px dashed rgba(255, 255, 255, 0.03) !important;
     }
-    #spamReportTableWrapper td:last-child {
+    .spam-table td:last-child {
         border-bottom: none !important;
+        padding-bottom: 0 !important;
     }
-    #spamReportTableWrapper td::before {
+    .spam-table td:first-child {
+        padding-top: 0 !important;
+    }
+    .spam-table td::before {
         content: attr(data-label);
         font-weight: 600;
         color: var(--accent-caramel);
-        float: left;
-        font-size: 12px;
+        font-size: 11px;
         text-transform: uppercase;
         letter-spacing: 0.5px;
+    }
+    .spam-table td a:hover {
+        transform: none;
     }
 }
 

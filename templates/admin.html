@@ -292,14 +292,14 @@
                 </div>
 
                 <!-- Spam Scoring Table -->
-                <div class="table-responsive" id="spamReportTableWrapper" style="display: none; border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.08); background: rgba(0,0,0,0.15);">
-                    <table class="table" style="color: #fff; margin-bottom: 0; font-size: 14px; width: 100%; border-collapse: collapse;">
+                <div class="spam-table-container" id="spamReportTableWrapper" style="display: none;">
+                    <table class="spam-table">
                         <thead>
-                            <tr style="background: rgba(255, 255, 255, 0.05); border-bottom: 1px solid rgba(255,255,255,0.08);">
-                                <th style="padding: 14px 16px; text-align: left; font-weight: 600; color: var(--accent-primary);">Kullanıcı Adı</th>
-                                <th style="padding: 14px 16px; text-align: center; font-weight: 600; color: var(--accent-primary);">Toplam Yorum</th>
-                                <th style="padding: 14px 16px; text-align: center; font-weight: 600; color: var(--accent-primary);">Format İhlali</th>
-                                <th style="padding: 14px 16px; text-align: center; font-weight: 600; color: var(--accent-primary);">Ort. Spam Puanı</th>
+                            <tr>
+                                <th style="text-align: left;">Kullanıcı Adı</th>
+                                <th style="text-align: center;">Toplam Yorum</th>
+                                <th style="text-align: center;">Format İhlali</th>
+                                <th style="text-align: center;">Ort. Spam Puanı</th>
                             </tr>
                         </thead>
                         <tbody id="spamReportTableBody">
