@@ -26,6 +26,9 @@ function showAlert(message, type = "success") {
 
 function slideDown(el) {
     if (!el) return;
+    if (el._onTransitionEnd) {
+        el.removeEventListener("transitionend", el._onTransitionEnd);
+    }
     el.classList.remove("collapsed");
     el.style.maxHeight = "0px";
     el.style.opacity = "0";
@@ -33,33 +36,38 @@ function slideDown(el) {
     el.style.maxHeight = el.scrollHeight + "px";
     el.style.opacity = "1";
     
-    const onTransitionEnd = (e) => {
+    el._onTransitionEnd = (e) => {
         if (e.propertyName === "max-height") {
             el.style.maxHeight = "none";
             el.style.opacity = "";
-            el.removeEventListener("transitionend", onTransitionEnd);
+            el.removeEventListener("transitionend", el._onTransitionEnd);
+            el._onTransitionEnd = null;
         }
     };
-    el.addEventListener("transitionend", onTransitionEnd);
+    el.addEventListener("transitionend", el._onTransitionEnd);
 }
 
 function slideUp(el) {
     if (!el) return;
+    if (el._onTransitionEnd) {
+        el.removeEventListener("transitionend", el._onTransitionEnd);
+    }
     el.style.maxHeight = el.scrollHeight + "px";
     el.style.opacity = "1";
     void el.offsetHeight; // force reflow
     el.style.maxHeight = "0px";
     el.style.opacity = "0";
     
-    const onTransitionEnd = (e) => {
+    el._onTransitionEnd = (e) => {
         if (e.propertyName === "max-height") {
             el.classList.add("collapsed");
             el.style.maxHeight = "";
             el.style.opacity = "";
-            el.removeEventListener("transitionend", onTransitionEnd);
+            el.removeEventListener("transitionend", el._onTransitionEnd);
+            el._onTransitionEnd = null;
         }
     };
-    el.addEventListener("transitionend", onTransitionEnd);
+    el.addEventListener("transitionend", el._onTransitionEnd);
 }
 
 function closeAllPanels(exceptId) {
@@ -1591,11 +1599,15 @@ function toggleSpamReportPanel() {
 window.toggleSpamReportPanel = toggleSpamReportPanel;
 
 function toggleSpamDropdown() {
+    const dropdown = document.getElementById("spamReportGroupDropdown");
     const menu = document.getElementById("spamReportDropdownMenu");
     const trigger = document.getElementById("spamReportDropdownTrigger");
     if (menu && trigger) {
         menu.classList.toggle("show");
         trigger.classList.toggle("active");
+        if (dropdown) {
+            dropdown.classList.toggle("active");
+        }
     }
 }
 window.toggleSpamDropdown = toggleSpamDropdown;
@@ -1615,6 +1627,7 @@ function filterSpamDropdown(val) {
 window.filterSpamDropdown = filterSpamDropdown;
 
 function selectSpamGroup(id, name) {
+    const dropdown = document.getElementById("spamReportGroupDropdown");
     const input = document.getElementById("spamReportGroupSelect");
     const textSpan = document.getElementById("spamReportGroupDropdownText");
     const menu = document.getElementById("spamReportDropdownMenu");
@@ -1636,6 +1649,9 @@ function selectSpamGroup(id, name) {
         
         menu.classList.remove("show");
         trigger.classList.remove("active");
+        if (dropdown) {
+            dropdown.classList.remove("active");
+        }
         
         // Trigger onchange event
         input.dispatchEvent(new Event("change"));
@@ -1651,6 +1667,7 @@ document.addEventListener("click", (e) => {
         const trigger = document.getElementById("spamReportDropdownTrigger");
         if (menu) menu.classList.remove("show");
         if (trigger) trigger.classList.remove("active");
+        dropdown.classList.remove("active");
     }
 });
 

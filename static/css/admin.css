@@ -1011,7 +1011,8 @@ body.page-transitioning-out {
     z-index: 10;
 }
 .custom-dropdown:has(.dropdown-trigger.active),
-.custom-dropdown:has(.dropdown-menu.show) {
+.custom-dropdown:has(.dropdown-menu.show),
+.custom-dropdown.active {
     z-index: 10100 !important;
 }
 .custom-dropdown.small {
