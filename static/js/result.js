@@ -622,3 +622,37 @@ function getIstanbulDateStr() {
     });
     return formatter.format(d);
 }
+
+function showPostDetailsModal(index) {
+    const data = window.postDetailsData ? window.postDetailsData[index] : null;
+    if (!data) return;
+    
+    const ownerEl = document.getElementById("modalPostOwner");
+    const fullnameEl = document.getElementById("modalPostOwnerFullname");
+    const likesEl = document.getElementById("modalPostLikes");
+    const commentsEl = document.getElementById("modalPostComments");
+    const captionEl = document.getElementById("modalPostCaption");
+    const linkBtn = document.getElementById("modalPostLinkBtn");
+    
+    if (ownerEl) ownerEl.textContent = data.sender ? "@" + data.sender : "Bilinmiyor";
+    if (fullnameEl) fullnameEl.textContent = data.owner_fullname ? data.owner_fullname : "İsim Bilgisi Yok";
+    if (likesEl) likesEl.textContent = Number(data.like_count).toLocaleString("tr-TR");
+    if (commentsEl) commentsEl.textContent = Number(data.comment_count).toLocaleString("tr-TR");
+    if (captionEl) captionEl.textContent = data.caption ? data.caption : "Açıklama bulunmuyor.";
+    if (linkBtn) linkBtn.href = data.link;
+    
+    const modal = document.getElementById("postDetailsModal");
+    if (modal) {
+        modal.classList.add("show");
+    }
+}
+
+function closePostDetailsModal() {
+    const modal = document.getElementById("postDetailsModal");
+    if (modal) {
+        modal.classList.remove("show");
+    }
+}
+
+window.showPostDetailsModal = showPostDetailsModal;
+window.closePostDetailsModal = closePostDetailsModal;

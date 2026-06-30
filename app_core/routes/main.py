@@ -10,7 +10,7 @@ from flask import Blueprint, jsonify, render_template, request
 from donustur import donustur
 from log_in import giris_yap, LoginError
 
-from app_core.instagram_api import get_post_sender, get_media_taken_at
+from app_core.instagram_api import get_post_sender, get_media_taken_at, get_post_details
 from app_core.storage import load_exemptions, save_exemptions, load_global_exemptions, add_audit_log
 from app_core.token_service import (
     fetch_comments_with_failover,
@@ -247,11 +247,12 @@ def index():
             izinli_uyeler = get_exempted_users(link_single)
             all_exempted_for_link = izinli_uyeler | global_exempted
             
-            # Postun göndericisini frontend'den al, yoksa API'den dene
+            # Post detaylarını API'den çek (Beğeni, Yorum sayısı, Gönderen adı vb.)
+            post_details = get_post_details(media_id, active_working_token) or {}
+            
             post_sender = post_senders.get(link_single)
-            logger.info(f"DEBUG: link={link_single}, post_sender from form={post_sender}")
             if not post_sender:
-                post_sender = get_post_sender(media_id, active_working_token)
+                post_sender = post_details.get("sender")
                 if post_sender:
                     post_sender = normalize_username(post_sender)
             
@@ -267,6 +268,10 @@ def index():
                 "eksikler": list(eksikler),
                 "commenters": list(tamamlayanlar),
                 "sender": post_sender,
+                "owner_fullname": post_details.get("owner_fullname"),
+                "like_count": post_details.get("like_count", 0),
+                "comment_count": post_details.get("comment_count", 0),
+                "caption": post_details.get("caption", ""),
             })
             
             # Her eksik kullanıcının hangi linklerde eksik olduğunu kaydet

@@ -117,6 +117,90 @@ def get_post_sender(media_id, token_record):
     return None
 
 
+def get_post_details(media_id, token_record):
+    """Verilen media_id'nin detayli bilgilerini (gönderici, beğeni sayısı, yorum sayısı, başlık) çeker."""
+    username = _get_username(token_record)
+    token = token_record.get("token", "")
+    user_agent = token_record.get("user_agent", "")
+    android_id = token_record.get("android_id_yeni", "")
+    device_id = token_record.get("device_id", "")
+    
+    res = {
+        "sender": None,
+        "owner_fullname": None,
+        "like_count": 0,
+        "comment_count": 0,
+        "caption": ""
+    }
+    
+    if not all([token, user_agent, android_id, device_id]):
+        return res
+        
+    headers = build_auth_headers(token, user_agent, android_id, device_id, username=username)
+    headers.update({
+        "x-ig-app-locale": "tr_TR",
+        "x-ig-device-locale": "tr_TR",
+        "x-ig-mapped-locale": "tr_TR",
+        "x-ig-capabilities": "3brTv10=",
+        "x-ig-connection-type": "WIFI",
+        "x-fb-connection-type": "WIFI",
+        "accept-language": "tr-TR, en-US",
+    })
+    
+    try:
+        response = _get_http_session(username).get(
+            f"https://i.instagram.com/api/v1/media/{media_id}/info/",
+            headers=headers,
+            timeout=10,
+        )
+        _update_session_from_response(username, response)
+        if response.status_code == 200:
+            data = response.json()
+            items = data.get("items", [])
+            if items:
+                item = items[0]
+                user = item.get("user", {})
+                res["sender"] = user.get("username", "")
+                res["owner_fullname"] = user.get("full_name", "")
+                res["like_count"] = item.get("like_count", 0)
+                res["comment_count"] = item.get("comment_count", 0)
+                
+                caption_obj = item.get("caption") or {}
+                res["caption"] = caption_obj.get("text", "")
+                return res
+    except Exception as e:
+        logger.warning("get_post_details info hatası: %s", e)
+        
+    # Infos alternate endpoint
+    try:
+        response = _get_http_session(username).get(
+            f"https://i.instagram.com/api/v1/media/infos/",
+            params={"media_ids": f"[{media_id}]"},
+            headers=headers,
+            timeout=10,
+        )
+        _update_session_from_response(username, response)
+        if response.status_code == 200:
+            data = response.json()
+            items = data.get("items", [])
+            if items:
+                item = items[0]
+                user = item.get("user", {})
+                res["sender"] = user.get("username", "")
+                res["owner_fullname"] = user.get("full_name", "")
+                res["like_count"] = item.get("like_count", 0)
+                res["comment_count"] = item.get("comment_count", 0)
+                
+                caption_obj = item.get("caption") or {}
+                res["caption"] = caption_obj.get("text", "")
+                return res
+    except Exception as e:
+        logger.warning("get_post_details infos hatası: %s", e)
+        
+    return res
+
+
+
 def extract_user_id_from_token(token):
     if not token or not token.startswith("Bearer IGT:2:"):
         return None
