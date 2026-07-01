@@ -45,11 +45,18 @@
     </script>
 </head>
 <body {% if rate_limited %}data-rate-limited="true"{% endif %}>
+
     {% if rate_limited %}
     <div class="alert alert-premium-warning text-center mx-3 mt-3 shadow-lg">
         <i class="fas fa-clock me-2"></i>Çok fazla istek; Instagram geçici sınır koydu. Lütfen 10–15 dakika bekleyip tekrar deneyin.
     </div>
     {% endif %}
+    {% if error_message %}
+    <div class="alert alert-premium-warning text-center mx-3 mt-3 shadow-lg" style="background: rgba(220, 53, 69, 0.15); border-color: rgba(220, 53, 69, 0.3); color: #ea868f;">
+        <i class="fas fa-exclamation-triangle me-2"></i>{{ error_message }}
+    </div>
+    {% endif %}
+
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-12 col-md-10 col-lg-8 col-xl-7">
