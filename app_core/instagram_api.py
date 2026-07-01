@@ -15,13 +15,7 @@ _http_sessions = {}
 _session_lock = threading.Lock()
 
 def _get_http_session(username=None):
-    if not username:
-        username = "_default_"
-    with _session_lock:
-        if username not in _http_sessions:
-            _http_sessions[username] = requests.Session()
-        return _http_sessions[username]
-
+    return requests
 
 def clear_http_session(username=None):
     if not username:
