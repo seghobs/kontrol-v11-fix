@@ -193,18 +193,45 @@ def extract_user_id_from_token(token):
         logger.warning("Token'dan user_id cikarma hatasi: %s", e)
         return None
 
-
 def build_auth_headers(token, user_agent, android_id, device_id, username=None):
     from app_core.session_state import get_auth_headers
     if username:
-        return get_auth_headers(username, token, user_agent, android_id, device_id)
-    return {
-        "authorization": token,
-        "user-agent": user_agent,
-        "x-ig-app-id": IG_APP_ID,
-        "x-ig-android-id": f"android-{android_id}",
-        "x-ig-device-id": device_id,
-    }
+        headers = get_auth_headers(username, token, user_agent, android_id, device_id)
+    else:
+        headers = {
+            "authorization": token,
+            "user-agent": user_agent,
+            "x-ig-app-id": IG_APP_ID,
+            "x-ig-android-id": f"android-{android_id}",
+            "x-ig-device-id": device_id,
+        }
+        
+    # Extract and inject cookie header automatically from token JSON structure
+    try:
+        if token and token.startswith("Bearer IGT:2:"):
+            token_data = token.replace("Bearer IGT:2:", "").strip()
+            missing_padding = len(token_data) % 4
+            if missing_padding:
+                token_data += "=" * (4 - missing_padding)
+            import base64
+            import json
+            decoded_bytes = base64.b64decode(token_data)
+            decoded_str = decoded_bytes.decode("utf-8", errors="ignore")
+            data = json.loads(decoded_str)
+            
+            cookie_val = data.get("cookies")
+            if not cookie_val:
+                sessionid = data.get("sessionid")
+                ds_user_id = data.get("ds_user_id") or data.get("user_id")
+                if sessionid and ds_user_id:
+                    cookie_val = f"sessionid={sessionid}; ds_user_id={ds_user_id}"
+            
+            if cookie_val:
+                headers["cookie"] = cookie_val
+    except Exception as e:
+        logger.warning("build_auth_headers cookie injection error: %s", e)
+        
+    return headers
 
 
 def _update_session_from_response(username, response):
@@ -219,6 +246,12 @@ def _update_session_from_response(username, response):
         return
     try:
         if response.status_code in [400, 401, 403]:
+            # Media info veya likers veya stream_comments isteklerindeki 403 veya 400 hataları (gizli hesap vb.) oturumu silmemelidir!
+            url_str = str(response.url).lower()
+            if "media" in url_str and ("/info" in url_str or "/likers" in url_str or "/stream_comments" in url_str):
+                logger.info("Media istegi basarisiz (HTTP %d) - Oturum temizlenmiyor: @%s", response.status_code, username)
+                return
+                
             logger.info("Session state ve HTTP session temizleniyor (HTTP %d): @%s", response.status_code, username)
             clear_http_session(username)
             try:
@@ -240,7 +273,6 @@ def _update_session_from_response(username, response):
             pass  # JSON degilse veya parse hatasi varsa sessizce gec
     except Exception as e:
         logger.warning("_update_session_from_response hatası: %s", e)
-
 
 
 def _get_username(token_record):
