@@ -153,21 +153,19 @@ def get_working_active_token(excluded_usernames=None, skip_validation=False):
         return token_record
 
     return None
-
-
 def fetch_comments_with_failover(media_id, progress_callback=None, token_record=None):
     max_retries = 10
     retry_count = 0
     tried_usernames = set()
-    # usernames can be a set of strings or a list of tuples (username, text)
     comments_data = []
+    last_was_rate_limited = False
     
     if token_record is None:
         token_record = get_working_active_token()
 
     while retry_count < max_retries:
         if not token_record or not token_record.get("token"):
-            return []
+            break
 
         current_username = token_record.get("username", "bilinmeyen")
         logger.info("Token kullaniliyor: @%s", current_username)
@@ -185,11 +183,15 @@ def fetch_comments_with_failover(media_id, progress_callback=None, token_record=
             return comments_data
 
         if result.get("rate_limited"):
-            return {"rate_limited": True, "comments": comments_data}
+            logger.warning("Token (@%s) rate limited oldu, diger tokenler denenecek.", current_username)
+            last_was_rate_limited = True
+            retry_count += 1
+            tried_usernames.add(current_username)
+            token_record = get_working_active_token(tried_usernames)
+            continue
 
         status_code = result.get("status")
         if status_code in [400, 401, 403]:
-            # Token'in gercekten gecersiz olup olmadigini dogrula
             from app_core.instagram_api import validate_token
             is_really_dead = not validate_token(token_record)
             if is_really_dead:
@@ -215,20 +217,23 @@ def fetch_comments_with_failover(media_id, progress_callback=None, token_record=
         if not token_record:
             break
 
+    if last_was_rate_limited:
+        return {"rate_limited": True, "comments": comments_data}
     return comments_data
-
 
 def fetch_likers_with_failover(media_id, progress_callback=None, token_record=None):
     max_retries = 10
     retry_count = 0
     tried_usernames = set()
     usernames = set()
+    last_was_rate_limited = False
+    
     if token_record is None:
         token_record = get_working_active_token()
 
     while retry_count < max_retries:
         if not token_record or not token_record.get("token"):
-            return set()
+            break
 
         current_username = token_record.get("username", "bilinmeyen")
         logger.info("Token kullaniliyor (Begeni): @%s", current_username)
@@ -247,11 +252,15 @@ def fetch_likers_with_failover(media_id, progress_callback=None, token_record=No
             return usernames
 
         if result.get("rate_limited"):
-            return {"rate_limited": True, "usernames": usernames}
+            logger.warning("Token (@%s) rate limited oldu (Begeni), diger tokenler denenecek.", current_username)
+            last_was_rate_limited = True
+            retry_count += 1
+            tried_usernames.add(current_username)
+            token_record = get_working_active_token(tried_usernames)
+            continue
 
         status_code = result.get("status")
         if status_code in [400, 401, 403]:
-            # Token'in gercekten gecersiz olup olmadigini dogrula
             from app_core.instagram_api import validate_token
             is_really_dead = not validate_token(token_record)
             if is_really_dead:
@@ -266,7 +275,7 @@ def fetch_likers_with_failover(media_id, progress_callback=None, token_record=No
                         retry_count += 1
                         continue
             else:
-                logger.warning("Token (@%s) aslinda aktif ama post gizli veya begeni listesi engellendi. Pasife alinmadi.", current_username)
+                logger.warning("Token (@%s) aslinda aktif ama begeni listesi engellendi. Pasife alinmadi.", current_username)
         else:
             logger.warning("Post veya API hatasi (%s). Token yanmadi, ancak islem sonlandiriliyor.", status_code)
             break
@@ -277,8 +286,9 @@ def fetch_likers_with_failover(media_id, progress_callback=None, token_record=No
         if not token_record:
             break
 
+    if last_was_rate_limited:
+        return {"rate_limited": True, "usernames": usernames}
     return usernames
-
 
 def resolve_current_user(token, user_agent, android_id, device_id, username=None):
     try:
